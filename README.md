@@ -1,16 +1,13 @@
-# frontend_productos
+# Sistema de Productos - Frontend (Flutter) 
 
-A new Flutter project.
+Este es el frontend del Sistema de Productos, desarrollado en Flutter. Proporciona una interfaz web para autenticar usuarios mediante JWT y gestionar un catálogo de productos consumiendo una API REST.
 
-## Getting Started
+## 🌐 Configuración de la IP del Backend (¡Crucial!)
 
-This project is a starting point for a Flutter application.
+La aplicación se comunica con el backend de Spring Boot. Dependiendo de dónde vayas a probar la app, debes ajustar la URL base (`baseUrl`) en el archivo `lib/services/producto_service.dart` (y en el de autenticación):
 
-A few resources to get you started if this is your first Flutter project:
+ **Si pruebas en Web (Edge/Chrome):** Usa `http://localhost:8080`
+ ***Si pruebas en Emulador de Android (Android Studio):** El emulador ve a tu computadora local a través de una IP especial. Debes cambiar `localhost` por `10.0.2.2`. Ejemplo: `http://10.0.2.2:8080`
+* **Si pruebas en un Dispositivo Físico:** Asegúrate de que el teléfono y la PC estén en la misma red Wi-Fi y usa la IP local de tu PC (ej. `http://192.168.1.XX:8080`).
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
