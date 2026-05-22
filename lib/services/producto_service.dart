@@ -36,4 +36,47 @@ class ProductoService {
       return [];
     }
   }
+
+  //  MÉTODO PARA CREAR UN PRODUCTO (POST)
+  Future<bool> crearProducto(
+      String token, String nombre, double precio, int stock) async {
+    final url = Uri.parse(baseUrl);
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'nombre': nombre,
+          'precio': precio,
+          'stock': stock,
+        }),
+      );
+
+      return response.statusCode == 201 || response.statusCode == 200;
+    } catch (e) {
+      print('Error al crear producto: $e');
+      return false;
+    }
+  }
+
+  //  MÉTODO PARA ELIMINAR UN PRODUCTO (DELETE)
+  Future<bool> eliminarProducto(String token, int id) async {
+    final url = Uri.parse('$baseUrl/$id');
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      return response.statusCode == 200 || response.statusCode == 204;
+    } catch (e) {
+      print('Error al eliminar producto: $e');
+      return false;
+    }
+  }
 }
