@@ -3,8 +3,9 @@ import '../services/producto_service.dart';
 
 class ProductosView extends StatefulWidget {
   final String token;
-
-  const ProductosView({Key? key, required this.token}) : super(key: key);
+  final String role; // 👈 Agregamos esta línea
+  const ProductosView({Key? key, required this.token, required this.role})
+      : super(key: key);
 
   @override
   @override
@@ -172,21 +173,26 @@ class _ProductosViewState extends State<ProductosView> {
                                 fontWeight: FontWeight.bold, fontSize: 18)),
                         subtitle: Text(
                             'Precio: \$${producto['precio']}  |  Stock: ${producto['stock']} unidades'),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _eliminarProducto(
-                              producto['id'], producto['nombre']),
-                        ),
+                        trailing: widget.role == 'ROLE_ADMIN'
+                            ? IconButton(
+                                icon:
+                                    const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => _eliminarProducto(
+                                    producto['id'], producto['nombre']),
+                              )
+                            : null, // 👈 Si no es ADMIN, no renderiza nada (queda limpio)
                       ),
                     );
                   },
                 ),
       // ➕ BOTÓN FLOTANTE PARA CREAR
-      floatingActionButton: FloatingActionButton(
-        onPressed: _mostrarFormularioCrear,
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+      floatingActionButton: widget.role == 'ROLE_ADMIN'
+          ? FloatingActionButton(
+              onPressed: _mostrarFormularioCrear,
+              backgroundColor: Colors.blue,
+              child: const Icon(Icons.add, color: Colors.white),
+            )
+          : null, // 👈 Si es USER, el botón azul desaparece por completo
     );
   }
 }

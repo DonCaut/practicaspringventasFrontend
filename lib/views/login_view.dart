@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'productos_view.dart'; // Crearemos este archivo en el siguiente paso
 
 class LoginView extends StatefulWidget {
@@ -33,11 +34,23 @@ class _LoginViewState extends State<LoginView> {
     });
 
     if (token != null) {
+      // 🔑 DECODIFICACIÓN DEL JWT
+      // Abrimos el token para extraer la data en un mapa de Dart
+      Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+
+      // Accedemos a la lista 'role', tomamos el primer objeto y extraemos su 'authority'
+      String userRole = decodedToken['role'][0]['authority'];
+
       // Si el backend nos dio un token válido, viajamos a la pantalla de productos
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => ProductosView(token: token)),
+          MaterialPageRoute(
+            builder: (context) => ProductosView(
+              token: token,
+              role: userRole, // 👈 Pasamos el rol ("ROLE_USER" o "ROLE_ADMIN")
+            ),
+          ),
         );
       }
     } else {
