@@ -33,6 +33,94 @@ class _ProductosViewState extends State<ProductosView> {
     });
   }
 
+  void _mostrarFormularioEditar(Map<String, dynamic> producto) {
+    // Inicializamos los controladores con los datos que ya existen
+    final TextEditingController _nombreCtrl =
+        TextEditingController(text: producto['nombre']);
+    final TextEditingController _precioCtrl =
+        TextEditingController(text: producto['precio'].toString());
+    final TextEditingController _stockCtrl =
+        TextEditingController(text: producto['stock'].toString());
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Editar: ${producto['nombre']}'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                    controller: _nombreCtrl,
+                    decoration: const InputDecoration(labelText: 'Nombre')),
+                TextField(
+                    controller: _precioCtrl,
+                    decoration: const InputDecoration(labelText: 'Precio'),
+                    keyboardType: TextInputType.number),
+                TextField(
+                    controller: _stockCtrl,
+                    decoration: const InputDecoration(labelText: 'Stock'),
+                    keyboardType: TextInputType.number),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar')),
+            ElevatedButton(
+              onPressed: () async {
+                final String nuevoNombre = _nombreCtrl.text.trim();
+                final double? nuevoPrecio =
+                    double.tryParse(_precioCtrl.text.trim());
+                final int? nuevoStock = int.tryParse(_stockCtrl.text.trim());
+
+                if (nuevoNombre.isEmpty ||
+                    nuevoPrecio == null ||
+                    nuevoStock == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text(
+                            'Por favor, rellena todos los campos correctamente')),
+                  );
+                  return;
+                }
+
+                Navigator.pop(context); // Cerrar modal
+
+                // 🚀 Llamada al servicio para actualizar (usando el ID original del producto)
+                final exito = await _productoService.actualizarProducto(
+                  widget.token,
+                  producto['id'], // 👈 Enviamos el ID para saber cuál editar
+                  nuevoNombre,
+                  nuevoPrecio,
+                  nuevoStock,
+                );
+
+                if (!mounted) return;
+
+                if (exito) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Producto actualizado con éxito')),
+                  );
+                  _cargarProductos(); // Refrescar la lista
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Error al actualizar el producto')),
+                  );
+                }
+              },
+              child: const Text('Guardar Cambios'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // Función para manejar la eliminación
   Future<void> _eliminarProducto(int id, String nombre) async {
     final confirmado = await showDialog<bool>(
@@ -174,13 +262,27 @@ class _ProductosViewState extends State<ProductosView> {
                         subtitle: Text(
                             'Precio: \$${producto['precio']}  |  Stock: ${producto['stock']} unidades'),
                         trailing: widget.role == 'ROLE_ADMIN'
-                            ? IconButton(
-                                icon:
-                                    const Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => _eliminarProducto(
-                                    producto['id'], producto['nombre']),
+                            ? Row(
+                                mainAxisSize: MainAxisSize
+                                    .min, // Muy importante: evita que el Row ocupe toda la pantalla
+                                children: [
+                                  // ✏️ Botón de Editar (Nuevo)
+                                  IconButton(
+                                    icon: const Icon(Icons.edit,
+                                        color: Colors.blue),
+                                    onPressed: () => _mostrarFormularioEditar(
+                                        producto), // Llama al modal de edición
+                                  ),
+                                  // 🗑️ Botón de Eliminar (El que ya tenías)
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red),
+                                    onPressed: () => _eliminarProducto(
+                                        producto['id'], producto['nombre']),
+                                  ),
+                                ],
                               )
-                            : null, // 👈 Si no es ADMIN, no renderiza nada (queda limpio)
+                            : null, // Si no es ADMIN, sigue quedando impecable y limpio
                       ),
                     );
                   },

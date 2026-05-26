@@ -62,6 +62,34 @@ class ProductoService {
     }
   }
 
+  // ✏️ MÉTODO PARA ACTUALIZAR UN PRODUCTO (PUT)
+  Future<bool> actualizarProducto(
+      String token, int id, String nombre, double precio, int stock) async {
+    final url = Uri.parse(
+        '$baseUrl/$id'); // 👈 Concatenamos el ID igual que en el DELETE
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization':
+              'Bearer $token', // 🛡️ Enviamos el JWT para pasar el filtro de Spring Security
+        },
+        body: jsonEncode({
+          'nombre': nombre,
+          'precio': precio,
+          'stock': stock,
+        }),
+      );
+
+      // Spring Boot suele responder 200 OK o 204 No Content en actualizaciones exitosas
+      return response.statusCode == 200 || response.statusCode == 204;
+    } catch (e) {
+      print('Error al actualizar producto: $e');
+      return false;
+    }
+  }
+
   //  MÉTODO PARA ELIMINAR UN PRODUCTO (DELETE)
   Future<bool> eliminarProducto(String token, int id) async {
     final url = Uri.parse('$baseUrl/$id');
